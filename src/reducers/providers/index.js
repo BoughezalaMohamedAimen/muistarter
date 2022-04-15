@@ -21,7 +21,7 @@ const ProvidersReducer = (state = DEFAULT_STATE, action = {}) => {
     case "REMOVE_PROVIDER":
       return {
         ...state,
-        providers:state.providers.filter(provider=>provider.id!=action.payload)
+        providers:state.providers.filter(provider=>!action.payload.includes(provider.id))
       }; 
                 
   }

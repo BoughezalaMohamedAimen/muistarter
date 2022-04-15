@@ -1,10 +1,10 @@
 import { Typography } from '@mui/material'
 import React from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { DataGrid, GridToolbar, GridActionsCellItem } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import Box from '@mui/material/Box';
+import { LoadingButton } from '@mui/lab';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -20,7 +20,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 import ProviderForm from '../../components/forms/ProviderForm';
-
+import delete_from_server from "../../functions/crud/delete_from_server"
+import urls from '../../components/urls';
 
 
 
@@ -40,21 +41,40 @@ function PaperComponent(props) {
 export default function Providers() {
   const providers=useSelector(state=>state.providers.providers)
 
+  const dispatch=useDispatch()
+
 
   const [selected_provider, setselected_provider] = React.useState({id:0})
 
   // const [selectionModel, setSelectionModel] = React.useState([]);
   const [modalvisible, setmodalvisible] = React.useState(false)
   const [confirmationmodal, setconfirmationmodal] = React.useState(false)
-  const [to_delete, setto_delete] = useState([])
+  const [selected, setselected] = React.useState([])
+  const [action, setaction] = React.useState("");
+  const [loading, setloading] = React.useState(false);
 
+  const do_action=()=>{
+
+    if(action=="delete")
+    {
+      setconfirmationmodal(true)
+    }
+  }
 
   const edit_item=(value)=>{
     setmodalvisible(true)
     setselected_provider(value.row)
   }
-  const delete_item=()=>{
-      delete_from_server()
+  const delete_items=()=>{
+        setloading(true)
+        delete_from_server(urls.providers+"/0/",{ids:selected})
+        .then(res=>
+          {
+            dispatch({type:"REMOVE_PROVIDER",payload:selected})
+            setselected([])
+            setloading(false)
+          })
+        .catch(err=>{console.log(err);setloading(false)})
   }
 
   return (
@@ -72,14 +92,19 @@ export default function Providers() {
             labelId="demo-simple-select-label"
             id="demo-simple-select"
             label="Age"
-            onChange={(e)=>console.log(e)}
+            onChange={(e)=>setaction(e.target.value)}
           >
             <MenuItem value="delete">Suprimmer</MenuItem>
           </Select>
         </FormControl>
       </Grid>
       <Grid item md={1} alignItems="center" justifyContent="center" display="flex" spacing={0}>
-        <Button variant='contained'>Envoyer</Button>
+        <LoadingButton 
+          variant='contained' loading={loading}
+          onClick={do_action} 
+        >
+          Envoyer
+        </LoadingButton>
       </Grid>
       <Grid item md={8} alignItems="center" justifyContent="flex-end" display="flex" spacing={0}>
           <Button variant='contained' color="neutral"
@@ -114,7 +139,7 @@ export default function Providers() {
             width: 100,
             getActions: (value, tableMeta, updateValue) => [
               <GridActionsCellItem icon={<EditIcon />} label="Edit" onClick={()=>edit_item(value)}/>,
-              <GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={()=>{to_delete([value.id]);setconfirmationmodal(true)}}/>,
+              <GridActionsCellItem icon={<DeleteIcon />} label="Delete" onClick={()=>{setselected([value.id]);setconfirmationmodal(true)}}/>,
             ],
           },
         ]}
@@ -127,7 +152,7 @@ export default function Providers() {
         //   console.log(rowState);
         // }}
         onSelectionModelChange={(ids) => {
-          console.log(ids);
+          setselected(ids);
         }}
         checkboxSelection
       />
@@ -161,7 +186,7 @@ export default function Providers() {
           <Button autoFocus onClick={()=>setconfirmationmodal(false)}>
             Anuller
           </Button>
-          <Button onClick={()=>{setconfirmationmodal(false);}}>Suprimmer</Button>
+          <Button onClick={()=>{delete_items();setconfirmationmodal(false);}}>Suprimmer</Button>
         </DialogActions>
       </Dialog>
 

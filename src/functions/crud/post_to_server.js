@@ -1,6 +1,6 @@
 import store from "../../store";
 
-const post_to_server=(url,data)=>{
+const post_to_server=(url,data,additional={})=>{
     return new Promise((resolve,reject)=>{
         const axios = require('axios');
         axios.defaults.timeout=4000;
@@ -9,7 +9,7 @@ const post_to_server=(url,data)=>{
         axios({
             method:'post',
             url,
-            headers: { 'authorization': `Token ${sts.auth.token}`},
+            headers: { 'authorization': `Token ${sts.auth.token}`,...additional},
             data
         })
         .then(response=>{

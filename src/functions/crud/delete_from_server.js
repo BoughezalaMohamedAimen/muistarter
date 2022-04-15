@@ -1,6 +1,6 @@
 import store from "../../store";
 
-const delete_from_server=(url)=>{
+const delete_from_server=(url,data={})=>{
     return new Promise((resolve,reject)=>{
         const axios = require('axios');
         axios.defaults.timeout=6000;
@@ -8,6 +8,7 @@ const delete_from_server=(url)=>{
         axios({
             method:'delete',
             url,
+            data,
             headers: { 'authorization': `Token ${sts.auth.token}`},
         })
         .then(response=>{

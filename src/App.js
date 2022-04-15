@@ -32,11 +32,12 @@ export default function App() {
       retry(urls.categories,{},"SET_CATEGORIES")
       retry(urls.regions,{},"SET_REGIONS")
       retry(urls.providers,{},"SET_PROVIDERS")
+      retry(urls.clients,{},"SET_CLIENTS")
   }, [])
   
 
 
-  const [darkmode, setdarkmode] = useState("light")
+  const [darkmode, setdarkmode] = useState("dark")
   const theme = createTheme({
     palette: {
       mode: darkmode,
@@ -54,8 +55,10 @@ export default function App() {
         defaultProps: {
           enableColorOnDark: true
         }
-      }
-    }
+      },
+
+    },
+    
   });
 
   return (
